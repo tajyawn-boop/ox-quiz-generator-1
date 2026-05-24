@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OX 퀴즈 · X를 찾아서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gmarket+Sans:wght@500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  /* ===== OX QUIZ — TV GAME-SHOW STAGE — green/teal, spotlight, bold ===== */
+  :root{
+    --bg:#eef6f3; --card:#ffffff; --ink:#16241f; --ink-soft:#4a5d56;
+    --ink-faint:#8aa099; --line:#dde9e4;
+    --stage:#0c5c4a; --stage2:#10785f; --stage-dp:#063a2f;
+    --teal:#13a884; --teal-soft:#dbf3ec; --teal-dk:#0b7d62;
+    --o:#1ec47f; --x:#ff5d52; --gold:#ffce3d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--ink);min-height:100vh;
+    font-family:'Gowun Dodum',sans-serif;line-height:1.7;
+  }
+
+  /* ===== STAGE HERO (intro) ===== */
+  .stage-hero{
+    position:relative;overflow:hidden;text-align:center;
+    background:radial-gradient(ellipse 70% 90% at 50% -20%, var(--stage2), var(--stage) 60%, var(--stage-dp));
+    padding:30px 22px 90px;
+  }
+  .stage-hero .brand{position:absolute;top:18px;left:22px;display:flex;
+    align-items:center;gap:9px;z-index:6;}
+  .stage-hero .brand .badge{font-family:'Jua',sans-serif;font-size:1.1rem;
+    width:36px;height:36px;border-radius:11px;background:#fff;color:var(--stage);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 0 rgba(0,0,0,.25);}
+  .stage-hero .brand .bt{font-family:'Jua',sans-serif;font-size:1.2rem;color:#fff;}
+  .stage-hero .brand .bt span{color:var(--gold);}
+
+  /* spotlight beams */
+  .beam{position:absolute;top:-40%;width:42%;height:150%;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.16),transparent 72%);}
+  .beam.l{left:2%;transform:rotate(16deg);transform-origin:top center;}
+  .beam.r{right:2%;transform:rotate(-16deg);transform-origin:top center;}
+  /* stage-light bulbs across the top */
+  .bulbs{position:absolute;top:0;left:0;right:0;display:flex;
+    justify-content:space-around;padding:6px 30px;pointer-events:none;z-index:5;}
+  .bulb{width:9px;height:9px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 10px var(--gold);animation:blink 1.4s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  .stage-hero .inner{position:relative;z-index:4;}
+  .stage-hero .kicker{display:inline-block;font-family:'Jua',sans-serif;
+    font-size:.92rem;color:var(--stage-dp);background:var(--gold);
+    padding:6px 20px;border-radius:30px;box-shadow:0 4px 0 rgba(0,0,0,.22);
+    letter-spacing:.06em;}
+  /* the O X hero marks */
+  .oxhero{display:flex;align-items:center;justify-content:center;gap:18px;
+    margin:24px 0 4px;}
+  .oxhero .om,.oxhero .xm{font-family:'Jua',sans-serif;font-size:5rem;
+    width:108px;height:108px;border-radius:26px;display:flex;
+    align-items:center;justify-content:center;color:#fff;line-height:1;
+    box-shadow:0 8px 0 rgba(0,0,0,.28);}
+  .oxhero .om{background:var(--o);transform:rotate(-7deg);
+    animation:bob 2.6s ease-in-out infinite;}
+  .oxhero .xm{background:var(--x);transform:rotate(7deg);
+    animation:bob 2.6s ease-in-out infinite .5s;}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(var(--r,0));}
+    50%{transform:translateY(-12px) rotate(var(--r,0));}}
+  .oxhero .om{--r:-7deg;}.oxhero .xm{--r:7deg;}
+  .stage-hero h1{font-family:'Jua',sans-serif;font-size:3.4rem;color:#fff;
+    line-height:1.05;margin:8px 0 6px;text-shadow:0 5px 0 rgba(0,0,0,.25);}
+  .stage-hero .lead{color:#cfeae2;font-size:1.05rem;max-width:440px;
+    margin:0 auto;}
+  .stage-hero .wave{position:absolute;left:0;right:0;bottom:-1px;z-index:3;
+    width:100%;height:58px;display:block;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 22px 100px;}
+  .wrap.pulled{margin-top:-44px;position:relative;z-index:6;}
+
+  /* compact bar for play/result */
+  .topbar{display:none;background:var(--card);border-bottom:1px solid var(--line);
+    padding:14px 26px;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+  .topbar .badge{font-family:'Jua',sans-serif;font-size:1rem;
+    width:32px;height:32px;border-radius:9px;background:var(--stage);color:#fff;
+    display:flex;align-items:center;justify-content:center;}
+  .topbar .ttl{font-family:'Jua',sans-serif;font-size:1.1rem;}
+  .topbar .ttl span{color:var(--teal);}
+  .topbar .crumb{margin-left:auto;font-size:.84rem;color:var(--ink-faint);}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:26px;margin-bottom:18px;box-shadow:0 8px 24px rgba(12,92,74,.07);}
+  .panel-title{font-family:'Jua',sans-serif;font-size:1.15rem;margin-bottom:18px;
+    display:flex;align-items:center;gap:8px;}
+  .panel-title::before{content:"";width:6px;height:20px;background:var(--teal);
+    border-radius:3px;}
+
+  .field{margin-bottom:20px;}
+  .field:last-child{margin-bottom:0;}
+  .field .lab{font-size:.88rem;color:var(--ink-soft);margin-bottom:9px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:.88rem;padding:9px 16px;border:1.5px solid var(--line);
+    border-radius:24px;background:var(--card);color:var(--ink-soft);
+    cursor:pointer;transition:all .15s;}
+  .chip:hover{border-color:var(--teal);color:var(--teal);}
+  .chip.on{background:var(--teal);color:#fff;border-color:var(--teal);
+    font-weight:bold;}
+
+  .btn{width:100%;padding:16px;border:none;border-radius:14px;cursor:pointer;
+    font-family:'Jua',sans-serif;font-size:1.1rem;transition:all .15s;}
+  .btn-primary{background:var(--teal);color:#fff;box-shadow:0 5px 0 var(--teal-dk);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--teal-dk);}
+  .btn-primary:active{transform:translateY(3px);box-shadow:0 2px 0 var(--teal-dk);}
+  .btn-ghost{background:var(--card);color:var(--ink-soft);
+    border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+  .btn+.btn{margin-top:10px;}
+
+  /* play */
+  #play{display:none;}
+  .toprow{padding-top:26px;}
+  .progress{margin-bottom:18px;}
+  .progress .prow{display:flex;justify-content:space-between;font-size:.86rem;
+    color:var(--ink-soft);margin-bottom:7px;}
+  .progress .prow b{font-family:'Jua',sans-serif;color:var(--ink);}
+  .ptrack{height:9px;background:var(--line);border-radius:5px;overflow:hidden;}
+  .pfill{height:100%;background:var(--teal);border-radius:5px;
+    transition:width .4s ease;}
+
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:20px;
+    padding:34px 30px;text-align:center;box-shadow:0 10px 28px rgba(12,92,74,.08);}
+  .qcat{display:inline-block;font-family:'Jua',sans-serif;font-size:.78rem;
+    letter-spacing:.06em;color:var(--ink-soft);background:var(--bg);
+    padding:6px 16px;border-radius:20px;margin-bottom:20px;}
+  .qtext{font-family:'Jua',sans-serif;font-size:1.55rem;line-height:1.6;
+    margin-bottom:30px;}
+  .oxrow{display:flex;gap:16px;}
+  .oxbtn{flex:1;padding:28px 0;border-radius:18px;border:3px solid;cursor:pointer;
+    font-family:'Jua',sans-serif;background:var(--card);transition:all .15s;}
+  .oxbtn .mark{font-size:3.4rem;line-height:1;}
+  .oxbtn .word{display:block;font-size:1rem;margin-top:8px;}
+  .oxbtn.O{color:var(--o);border-color:var(--o);}
+  .oxbtn.X{color:var(--x);border-color:var(--x);}
+  .oxbtn.O:hover:not(:disabled){background:var(--o);color:#fff;transform:translateY(-3px);}
+  .oxbtn.X:hover:not(:disabled){background:var(--x);color:#fff;transform:translateY(-3px);}
+  .oxbtn:disabled{cursor:default;}
+  .oxbtn.O.right{background:var(--o);color:#fff;}
+  .oxbtn.X.right{background:var(--x);color:#fff;}
+  .oxbtn.O.chosen{background:var(--o);color:#fff;}
+  .oxbtn.X.chosen{background:var(--x);color:#fff;}
+  .oxbtn.dim{opacity:.3;}
+
+  .reveal{display:none;margin-top:24px;text-align:left;border-radius:16px;
+    padding:20px 22px;}
+  .reveal.ok{background:var(--teal-soft);}
+  .reveal.no{background:#ffe6e4;}
+  .reveal .vh{font-family:'Jua',sans-serif;font-size:1.2rem;margin-bottom:6px;}
+  .reveal.ok .vh{color:var(--teal-dk);}
+  .reveal.no .vh{color:var(--x);}
+  .reveal .vex{font-size:.95rem;color:var(--ink);}
+  .reveal .vref{font-size:.82rem;color:var(--ink-soft);margin-top:8px;}
+  #nextb{display:none;margin-top:16px;}
+
+  /* result */
+  #result{display:none;}
+  .result-card{background:var(--card);border:1px solid var(--line);
+    border-radius:20px;padding:44px 30px;text-align:center;
+    box-shadow:0 10px 28px rgba(12,92,74,.08);margin-top:30px;}
+  .score-ring{width:148px;height:148px;border-radius:50%;margin:0 auto 20px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--teal-soft);border:7px solid var(--teal);}
+  .score-ring .sn{font-family:'Jua',sans-serif;font-size:3rem;color:var(--teal-dk);
+    line-height:1;}
+  .score-ring .sl{font-size:.82rem;color:var(--ink-soft);margin-top:2px;}
+  .result-card h2{font-family:'Jua',sans-serif;font-size:1.45rem;margin-bottom:6px;}
+  .result-card p{color:var(--ink-soft);}
+
+  #sheet{display:none;}
+  .ps-q{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #ddd;
+    color:#000;}
+  .ps-a{color:#0b7d62;font-weight:bold;}
+
+  @media(max-width:560px){
+    .stage-hero{padding:24px 16px 80px;}
+    .stage-hero h1{font-size:2.5rem;}
+    .oxhero .om,.oxhero .xm{width:84px;height:84px;font-size:3.6rem;}
+    .wrap{padding:0 16px 80px;}
+    .qtext{font-size:1.25rem;}
+    .qcard{padding:26px 18px;}
+    .oxbtn .mark{font-size:2.7rem;}
+  }
+  @media print{
+    .stage-hero,.topbar,.panel,.btn,#play,#result{display:none!important;}
+    body{background:#fff;}
+    #sheet{display:block!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <span class="badge">X</span>
+  <span class="ttl">X<span>를</span> 찾아서</span>
+  <span class="crumb">수련회 OX 퀴즈</span>
+</div>
+
+<!-- ===== STAGE INTRO ===== -->
+<div class="stage-hero" id="hero">
+  <div class="bulbs" id="bulbs"></div>
+  <div class="beam l"></div><div class="beam r"></div>
+  <div class="brand">
+    <span class="badge">X</span>
+    <span class="bt">X<span>를</span> 찾아서</span>
+  </div>
+  <div class="inner">
+    <span class="kicker">진실인가, 거짓인가?</span>
+    <div class="oxhero">
+      <span class="om">O</span><span class="xm">X</span>
+    </div>
+    <h1>수련회 OX 퀴즈</h1>
+    <p class="lead">교리 강의에서 배운 내용을 O와 X로 신나게 확인해 봐요!</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 58" preserveAspectRatio="none">
+    <path d="M0,28 C240,56 480,4 720,26 C960,48 1200,10 1440,32 L1440,58 L0,58 Z"
+      fill="#eef6f3"></path>
+  </svg>
+</div>
+
+<div class="wrap pulled" id="setupWrap">
+  <div id="setup">
+    <div class="panel">
+      <div class="panel-title">퀴즈 설정</div>
+      <div class="field">
+        <div class="lab">주제 범위 — 원하는 만큼 선택</div>
+        <div class="chips" id="g_cat"></div>
+      </div>
+      <div class="field">
+        <div class="lab">난이도</div>
+        <div class="chips" id="g_diff"></div>
+      </div>
+      <div class="field">
+        <div class="lab">문항 수</div>
+        <div class="chips" id="g_count"></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="start()">퀴즈 시작하기</button>
+    <button class="btn btn-ghost" onclick="printSheet()">문제지 · 정답지 인쇄</button>
+  </div>
+</div>
+
+<div class="wrap" id="gameWrap">
+  <div id="play">
+    <div class="toprow">
+      <div class="progress">
+        <div class="prow"><span>진행 <b id="pNow">1</b> / <b id="pTotal">8</b></span>
+          <span>점수 <b id="pScore">0</b></span></div>
+        <div class="ptrack"><div class="pfill" id="pFill"></div></div>
+      </div>
+    </div>
+    <div class="qcard">
+      <span class="qcat" id="qcat"></span>
+      <div class="qtext" id="qtext"></div>
+      <div class="oxrow">
+        <button class="oxbtn O" id="bO" onclick="answer(true)">
+          <span class="mark">O</span><span class="word">맞다</span></button>
+        <button class="oxbtn X" id="bX" onclick="answer(false)">
+          <span class="mark">X</span><span class="word">아니다</span></button>
+      </div>
+      <div class="reveal" id="reveal">
+        <div class="vh" id="vh"></div>
+        <div class="vex" id="vex"></div>
+        <div class="vref" id="vref"></div>
+      </div>
+      <button class="btn btn-primary" id="nextb" onclick="next()">다음 문제</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="result-card">
+      <div class="score-ring">
+        <span class="sn" id="rScore">0</span>
+        <span class="sl" id="rOf">/ 8</span>
+      </div>
+      <h2 id="rMsg"></h2>
+      <p id="rSub"></p>
+      <button class="btn btn-primary" style="margin-top:24px;"
+        onclick="location.reload()">새 퀴즈 만들기</button>
+    </div>
+  </div>
+
+  <div id="sheet"></div>
+</div>
+
+<script>
+/* stage-light bulbs */
+(function(){
+  const b=document.getElementById('bulbs');
+  for(let i=0;i<13;i++){const d=document.createElement('div');d.className='bulb';
+    d.style.animationDelay=(i*0.12)+'s';b.appendChild(d);}
+})();
+
+const BANK=[
+ {cat:'1일차·세계관',d:'easy',q:'수련회 주제는 "하나님 나라, 하나님의 방식으로" 이다.',a:true,
+  e:'맞습니다. 로마서 12장 2절을 본문으로 한 이번 수련회의 주제입니다.',r:'로마서 12:2'},
+ {cat:'1일차·절대주권',d:'easy',q:'개혁주의 신학은 우리 인생에 "우연"이 존재한다고 가르친다.',a:false,
+  e:'아닙니다. 하나님의 절대주권 — 우연은 없으며 모든 것이 하나님의 계획 안에 있습니다.',r:'잠언 16:9'},
+ {cat:'1일차·다니엘',d:'easy',q:'다니엘은 바벨론의 방식을 거절하고 하나님의 방식을 선택했다.',a:true,
+  e:'맞습니다. 다니엘 1장 — 왕의 음식을 거절하고 하나님의 방식으로 진짜 승리를 거두었습니다.',r:'다니엘 1장'},
+ {cat:'1일차·세계관',d:'mid',q:'성경은 성적·외모·인기·돈이 사람을 판단하는 정당한 기준이라고 말한다.',a:false,
+  e:'아닙니다. 시편 24편 — 모든 것의 주인은 여호와이시며 세상의 기준은 하나님 앞에서 의미가 없습니다.',r:'시편 24편'},
+ {cat:'1일차·절대주권',d:'mid',q:'"하나님의 절대주권"은 하나님이 모든 것을 다스리신다는 뜻이다.',a:true,
+  e:'맞습니다. 우연은 없고 모든 것이 하나님의 계획과 다스림 안에 있다는 개혁주의 핵심 교리입니다.',r:'개혁주의 4기둥'},
+ {cat:'2일차·전적타락',d:'mid',q:'"전적 타락"은 인간이 할 수 있는 한 가장 악하다는 뜻이다.',a:false,
+  e:"아닙니다. '완전히 나쁘다'가 아니라, 죄가 인간의 모든 영역(이성·감정·의지·관계)에 영향을 미친다는 뜻입니다.",r:'개혁주의 교리'},
+ {cat:'2일차·전도서',d:'easy',q:"솔로몬은 세상의 모든 방식을 시도한 뒤 '헛되고 헛되다'고 고백했다.",a:true,
+  e:'맞습니다. 전도서 1~2장 — 솔로몬은 세상의 방식이 결국 공허하다고 고백합니다.',r:'전도서 1~2장'},
+ {cat:'2일차·십자가',d:'mid',q:'십자가는 세상이 보기엔 패배 같았지만 실제로는 가장 큰 승리였다.',a:true,
+  e:'맞습니다. 고린도전서 1:18~25 — 세상이 미련하게 여기는 십자가가 하나님의 능력입니다.',r:'고린도전서 1:18~25'},
+ {cat:'2일차·복음',d:'mid',q:'복음의 승리 공식은 "강한 자가 이긴다"이다.',a:false,
+  e:'아닙니다. 그것은 세상의 공식입니다. 복음은 약함으로 강함을, 내어줌으로 얻음을, 죽음으로 생명을 이깁니다.',r:'고린도전서 1장'},
+ {cat:'2일차·부활',d:'hard',q:'부활은 하나님의 방식이 반드시 이긴다는 보증이다.',a:true,
+  e:'맞습니다. 부활은 죽음과 절망이라는 세상의 방식에 대한 하나님의 최종 답변입니다.',r:'고린도전서 15장'},
+ {cat:'3일차·성화',d:'mid',q:'성화는 한 번에 완벽해지는 사건이다.',a:false,
+  e:'아닙니다. 성화는 단번이 아니라 날마다 하나님의 방식을 선택하는 훈련의 과정입니다.',r:'빌립보서 1:6'},
+ {cat:'3일차·성화',d:'easy',q:'성화의 세 가지 훈련은 말씀 묵상, 기도, 공동체이다.',a:true,
+  e:'맞습니다. 하나님의 방식으로 생각하고, 능력을 의지하며, 함께 살아가는 훈련입니다.',r:'교리 강의 4'},
+ {cat:'3일차·성화',d:'hard',q:'성화에서 한 번 넘어지면 다시 돌이킬 수 없다.',a:false,
+  e:'아닙니다. 성화는 완벽함이 아니라 방향입니다. 넘어져도 다시 하나님의 방식으로 돌아오면 됩니다.',r:'잠언 24:16'},
+ {cat:'3일차·파송',d:'mid',q:'우리는 수련회를 마치고 하나님 나라의 시민으로 세상 속으로 파송받는다.',a:true,
+  e:'맞습니다. 수련회는 끝이 아니라 진짜 시작 — 세상 속으로의 파송입니다.',r:'마태복음 28:19~20'},
+ {cat:'성경상식',d:'easy',q:'요셉은 형들에게 팔려 애굽으로 내려갔다.',a:true,
+  e:'맞습니다. 창세기 37장의 사건이며 후에 하나님의 섭리로 한 민족을 살립니다.',r:'창세기 37장'},
+ {cat:'성경상식',d:'easy',q:'로마서는 신약성경의 책이다.',a:true,
+  e:'맞습니다. 사도 바울이 로마 교회에 보낸 편지입니다.',r:'신약성경'},
+ {cat:'성경상식',d:'mid',q:'전도서를 쓴 사람으로 전통적으로 알려진 인물은 다윗이다.',a:false,
+  e:'아닙니다. 전도서는 전통적으로 솔로몬이 쓴 것으로 알려져 있습니다.',r:'전도서'},
+ {cat:'성경상식',d:'hard',q:'"너희는 이 세대를 본받지 말라"는 말씀은 로마서 12장에 나온다.',a:true,
+  e:'맞습니다. 로마서 12장 2절 — 이번 수련회의 핵심 본문입니다.',r:'로마서 12:2'},
+];
+const CATS=[...new Set(BANK.map(x=>x.cat))];
+const OPTS={
+  diff:[['쉬움 위주','easy'],['보통','mid'],['어려움 포함','hard'],['전체','all']],
+  count:[['5문항','5'],['8문항','8'],['12문항','12'],['전체','99']]
+};
+const state={cats:new Set(CATS),diff:'all',count:'8'};
+const catEl=document.getElementById('g_cat');
+CATS.forEach(c=>{
+  const t=document.createElement('div');t.className='chip on';t.textContent=c;
+  t.onclick=()=>{if(state.cats.has(c)){state.cats.delete(c);t.classList.remove('on');}
+    else{state.cats.add(c);t.classList.add('on');}};
+  catEl.appendChild(t);
+});
+function single(key,id){
+  const el=document.getElementById(id);
+  OPTS[key].forEach(([label,val])=>{
+    const t=document.createElement('div');t.className='chip';t.textContent=label;
+    if(state[key]===val)t.classList.add('on');
+    t.onclick=()=>{state[key]=val;
+      [...el.children].forEach(x=>x.classList.remove('on'));t.classList.add('on');};
+    el.appendChild(t);
+  });
+}
+single('diff','g_diff');single('count','g_count');
+function buildQuiz(){
+  let pool=BANK.filter(q=>state.cats.has(q.cat));
+  if(state.diff!=='all'){
+    const allow={easy:['easy'],mid:['easy','mid'],hard:['easy','mid','hard']}[state.diff];
+    pool=pool.filter(q=>allow.includes(q.d));
+  }
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];}
+  return pool.slice(0,Math.min(parseInt(state.count),pool.length));
+}
+let quiz=[],idx=0,score=0,answered=false;
+function enterGame(){
+  document.getElementById('hero').style.display='none';
+  document.getElementById('setupWrap').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+}
+function start(){
+  if(state.cats.size===0){alert('주제를 하나 이상 선택하세요.');return;}
+  quiz=buildQuiz();
+  if(!quiz.length){alert('조건에 맞는 문제가 없습니다.');return;}
+  idx=0;score=0;enterGame();
+  document.getElementById('play').style.display='block';
+  document.getElementById('pTotal').textContent=quiz.length;
+  render();
+}
+function render(){
+  answered=false;const q=quiz[idx];
+  document.getElementById('pNow').textContent=idx+1;
+  document.getElementById('pScore').textContent=score;
+  document.getElementById('pFill').style.width=(idx/quiz.length*100)+'%';
+  document.getElementById('qcat').textContent=q.cat;
+  document.getElementById('qtext').textContent=q.q;
+  ['bO','bX'].forEach(id=>{const b=document.getElementById(id);
+    b.disabled=false;b.className='oxbtn '+id.slice(1);});
+  document.getElementById('reveal').style.display='none';
+  document.getElementById('nextb').style.display='none';
+}
+function answer(chose){
+  if(answered)return;answered=true;
+  const q=quiz[idx];const correct=(chose===q.a);
+  if(correct)score++;
+  const bO=document.getElementById('bO'),bX=document.getElementById('bX');
+  bO.disabled=true;bX.disabled=true;
+  const chosenBtn=chose?bO:bX, rightBtn=q.a?bO:bX, wrongBtn=q.a?bX:bO;
+  rightBtn.classList.add('right');
+  if(!correct)chosenBtn.classList.add('chosen');
+  if(correct)wrongBtn.classList.add('dim');
+  document.getElementById('pScore').textContent=score;
+  const rv=document.getElementById('reveal');
+  rv.style.display='block';
+  rv.className='reveal '+(correct?'ok':'no');
+  document.getElementById('vh').textContent=correct?'정답이에요!':'아쉬워요!';
+  document.getElementById('vex').textContent=
+    `정답은 [ ${q.a?'O':'X'} ] — `+q.e;
+  document.getElementById('vref').textContent='관련 본문 · '+q.r;
+  const nb=document.getElementById('nextb');nb.style.display='block';
+  nb.textContent=(idx+1<quiz.length)?'다음 문제':'결과 보기';
+}
+function next(){idx++;if(idx<quiz.length)render();else showResult();}
+function showResult(){
+  document.getElementById('play').style.display='none';
+  const r=document.getElementById('result');r.style.display='block';
+  document.getElementById('rScore').textContent=score;
+  document.getElementById('rOf').textContent='/ '+quiz.length;
+  const pct=score/quiz.length*100;
+  let m,s;
+  if(pct>=90){m='하나님의 방식을 잘 알고 있어요!';s='이제 그 진리를 삶으로 살아낼 차례예요.';}
+  else if(pct>=60){m='잘 따라오고 있어요.';s='놓친 내용은 다시 한 번 마음에 새겨 보세요.';}
+  else{m='함께 더 찾아봐요.';s='교리 강의를 다시 떠올리며 이야기 나눠 보세요.';}
+  document.getElementById('rMsg').textContent=m;
+  document.getElementById('rSub').textContent=s;
+  scrollTo({top:0,behavior:'smooth'});
+}
+function printSheet(){
+  if(state.cats.size===0){alert('주제를 하나 이상 선택하세요.');return;}
+  const q=buildQuiz();
+  if(!q.length){alert('조건에 맞는 문제가 없습니다.');return;}
+  let h=`<h2 style="text-align:center;color:#000;">수련회 OX 퀴즈</h2>
+    <p style="text-align:center;color:#555;">X를 찾아서 · 총 ${q.length}문항</p><hr>
+    <h3 style="color:#000;">■ 문제</h3>`;
+  q.forEach((x,i)=>h+=`<div class="ps-q"><b>${i+1}.</b> [${x.cat}] ${x.q} &nbsp;( O / X )</div>`);
+  h+=`<div style="page-break-before:always;"></div><h3 style="color:#000;">■ 정답 및 해설</h3>`;
+  q.forEach((x,i)=>h+=`<div class="ps-q"><b>${i+1}.</b> <span class="ps-a">정답 ${x.a?'O':'X'}</span> — ${x.e}<br><span style="color:#888;font-size:.85em;">본문: ${x.r}</span></div>`);
+  document.getElementById('sheet').innerHTML=h;
+  window.print();
+}
+</script>
+</body>
+</html>
